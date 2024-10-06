@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Погода в ТСН Давыдовское</title>
+    <script>
+        // Введите ваш токен авторизации и IP-адрес Home Assistant
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwMzJmNjk5ZjFjZmE0NDg0YTE2NjgwYTUzZDU2MjJmMyIsImlhdCI6MTcyNzg1NDYwNiwiZXhwIjoyMDQzMjE0NjA2fQ.cuccmbh7UzdedoJaaic8IMMTJQpxE9WNqUO6UyHt5DE';
+        const HA_URL = 'https://ha.kvad-kl.keenetic.pro';
+
+        // Функция для получения данных датчиков через API
+        async function fetchSensorData(sensorId) {
+            const response = await fetch(`${HA_URL}/api/states/${sensorId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${TOKEN}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            return data;
+        }
+
+        // Функция для обновления значений датчиков на странице
+        async function updateSensors() {
+            // Перечень сенсоров
+            const sensors = ['sensor.rain_on','sensor.pogoda_date','sensor.pogoda_t','sensor.pogoda_h','sensor.pogoda_sun'];
+
+            for (const sensorId of sensors) {
+                const sensorData = await fetchSensorData(sensorId);
+                document.getElementById(sensorId).innerText = `${sensorData.attributes.friendly_name}: ${sensorData.state}`;
+            }
+        }
+        
+        // Автоматическое обновление данных каждые 10 секунд
+        setInterval(updateSensors, 10000);
+        window.onload = updateSensors;
+    </script>
+</head>
+<body>
+    <h1>Погода в ТСН Давыдовское</h1>
+    <p id="sensor.pogoda_date">Загрузка...</p>
+    <p id="sensor.pogoda_t">Загрузка...</p>
+    <p id="sensor.pogoda_h">Загрузка...</p>
+    <p id="sensor.rain_on">Загрузка...</p>
+    <p id="sensor.pogoda_sun">Загрузка...</p>
+    <p> Пока всё </p>
+</body>
+</html>
 
